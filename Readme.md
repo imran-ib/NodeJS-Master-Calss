@@ -195,3 +195,88 @@ req.on("end", () => {
   });
 });
 ```
+
+# .config
+
+## Add https
+
+### Add SSL Certificate
+
+install open ssl
+
+run command
+
+`openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem`
+
+it will create two files in folder
+
+Now Create a config file on root directory
+
+```javascript
+// Container for all environments
+var environments = {};
+
+// Staging (default) environment
+environments.staging = {
+  httpPort: 3000,
+  httpsPort: 3001,
+  envName: "staging"
+};
+
+// Production environment
+environments.production = {
+  httpPort: 5000,
+  httpsPort: 5001,
+  envName: "production"
+};
+
+// Determine which environment was passed as a command-line argument
+var currentEnvironment =
+  typeof process.env.NODE_ENV == "string"
+    ? process.env.NODE_ENV.toLowerCase()
+    : "";
+
+// Check that the current environment is one of the environments above, if not default to staging
+var environmentToExport =
+  typeof environments[currentEnvironment] == "object"
+    ? environments[currentEnvironment]
+    : environments.staging;
+
+// Export the module
+module.exports = environmentToExport;
+```
+
+Now refactor our create server function so that it will run on both http and https
+
+- Create a unified function for create server and move all the login init
+- create two function one for http server and other for https server and listen on those
+- https server is little bit complicated so we need to work on it
+- server listen will take addition argument for option (ssl keys)
+
+```javascript
+// Instantiate the HTTP server
+var httpServer = http.createServer(function(req, res) {
+  unifiedServer(req, res);
+});
+
+// Start the HTTP server
+httpServer.listen(config.httpPort, function() {
+  console.log("The HTTP server is running on port " + config.httpPort);
+});
+
+// Instantiate the HTTPS server
+var httpsServerOptions = {
+  key: fs.readFileSync("./https/key.pem"),
+  cert: fs.readFileSync("./https/cert.pem")
+};
+var httpsServer = https.createServer(httpsServerOptions, function(req, res) {
+  unifiedServer(req, res);
+});
+
+// Start the HTTPS server
+httpsServer.listen(config.httpsPort, function() {
+  console.log("The HTTPS server is running on port " + config.httpsPort);
+});
+```
+
+_Remember that unifiedServer contains all the code that was in server function_
