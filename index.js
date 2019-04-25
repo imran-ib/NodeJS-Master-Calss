@@ -6,7 +6,7 @@ const { StringDecoder } = require("string_decoder");
 const config = require("./config");
 
 // Instantiate the HTTP server
-var httpServer = http.createServer(function(req, res) {
+const httpServer = http.createServer(function(req, res) {
   unifiedServer(req, res);
 });
 
@@ -16,11 +16,11 @@ httpServer.listen(config.httpPort, function() {
 });
 
 // Instantiate the HTTPS server
-var httpsServerOptions = {
+const httpsServerOptions = {
   key: fs.readFileSync("./https/key.pem"),
   cert: fs.readFileSync("./https/cert.pem")
 };
-var httpsServer = https.createServer(httpsServerOptions, function(req, res) {
+const httpsServer = https.createServer(httpsServerOptions, function(req, res) {
   unifiedServer(req, res);
 });
 
@@ -54,13 +54,13 @@ function unifiedServer(req, res) {
     buffer += decoder.end();
 
     // Check the router for a matching path for a handler. If one is not found, use the notFound handler instead.
-    var chosenHandler =
+    const chosenHandler =
       typeof router[trimmedPath] !== "undefined"
         ? router[trimmedPath]
         : handler.notFound;
 
     // Construct the data object to send to the handler
-    var data = {
+    const data = {
       trimmedPath: trimmedPath,
       queryStringObject: queryStringObject,
       method: method,
@@ -77,7 +77,7 @@ function unifiedServer(req, res) {
       payload = typeof payload == "object" ? payload : {};
 
       // Convert the payload to a string
-      var payloadString = JSON.stringify(payload);
+      const payloadString = JSON.stringify(payload);
 
       // Return the response
       res.setHeader("Content-type", "application/json");
@@ -96,9 +96,7 @@ handler.ping = function(data, callback) {
 handler.notFound = function(data, callback) {
   callback(404);
 };
-
 // Router
-
 const router = {
   ping: handler.ping
 };

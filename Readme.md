@@ -79,6 +79,8 @@ Now we can get query string object from that parsed URL
 
 ```javascript
   const method = req.method.toLowerCase();
+    // Get Query String
+  const queryStringObject = parsedUrl.query;
 
 console.log(
     "Request is recieved on " +
@@ -270,7 +272,7 @@ var httpsServerOptions = {
   cert: fs.readFileSync("./https/cert.pem")
 };
 var httpsServer = https.createServer(httpsServerOptions, function(req, res) {
-  unifiedServer(req, res);
+  unifiedServer(re  q, res);
 });
 
 // Start the HTTPS server
